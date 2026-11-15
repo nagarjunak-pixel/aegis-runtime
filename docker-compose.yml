@@ -1,0 +1,31 @@
+services:
+  aegis-control-plane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AEGIS_DATA_DIR=/var/lib/aegis
+      - OTEL_SERVICE_NAME=aegis-runtime
+    volumes:
+      - aegis_ledger:/var/lib/aegis
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+volumes:
+  aegis_ledger:

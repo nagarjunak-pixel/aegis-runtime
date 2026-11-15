@@ -1,0 +1,62 @@
+# AegisRuntime Default Enterprise ERP & Financial Governance Policy Set
+# Conflict Resolution: Deny-Overrides with Implicit Default-Deny
+
+rule "forbid-unauthenticated-or-no-mfa" {
+    effect: forbid
+    description: "All autonomous agent executions require MFA-verified principal session lineage"
+    when: principal.mfa_verified == false
+}
+
+rule "forbid-segregation-of-duties-self-approval" {
+    effect: forbid
+    description: "SOX Segregation of Duties (SoD): a principal cannot act as secondary approver on their own workflow"
+    when: principal.approver_id != null and principal.principal_id == principal.approver_id
+}
+
+rule "forbid-spend-above-autonomous-cap-without-secondary-approver" {
+    effect: forbid
+    description: "Financial mutations exceeding principal autonomous spend cap require an independent approver_id"
+    when: action.amount_usd > principal.max_autonomous_spend_usd and principal.approver_id == null
+}
+
+rule "forbid-hard-enterprise-ceiling" {
+    effect: forbid
+    description: "Hard treasury ceiling: single autonomous agent transaction may never exceed $500,000 USD"
+    when: action.amount_usd > 500000
+}
+
+rule "forbid-sanctioned-jurisdictions" {
+    effect: forbid
+    description: "OFAC/Sanctions compliance: block transactions targeting restricted country codes"
+    when: context.vendor_country in ["KP", "IR", "SY", "CU", "RU_SANCTIONED"]
+}
+
+rule "forbid-untrusted-taint-on-mutations" {
+    effect: forbid
+    description: "Defense-in-depth: forbid state-mutating ERP/Treasury actions when UNTRUSTED_EXTERNAL taint is present"
+    when: "UNTRUSTED_EXTERNAL" in action.taint_labels and action.operation in ["create", "update", "approve", "transfer"]
+}
+
+rule "forbid-vendor-bank-iban-mutation-by-non-treasury" {
+    effect: forbid
+    description: "Master-data bank IBAN updates require explicit treasury_controller role"
+    when: action.tool_name == "vendor.update_bank_iban" and "treasury_controller" not in principal.roles
+}
+
+rule "permit-erp-procurement-and-supply-chain" {
+    effect: permit
+    description: "Permit authorized procurement planners and supply-chain operators to manage inventory, requisitions, and POs"
+    when: ("procurement_planner" in principal.roles or "supply_chain_operator" in principal.roles) and action.resource_type in ["inventory_lot", "purchase_requisition", "purchase_order", "logistics_shipment", "vendor_master"]
+}
+
+rule "permit-treasury-settlement-operations" {
+    effect: permit
+    description: "Permit authorized treasury operators and procurement agents with treasury settlement rights to execute FX locks and approved wires"
+    when: ("treasury_operator" in principal.roles or "procurement_planner" in principal.roles) and action.resource_type in ["fx_hedge", "wire_transfer"] and action.target_domain == "internal.erp"
+}
+
+rule "permit-compensating-rollback-actions" {
+    effect: permit
+    description: "Always permit deterministic saga compensation rollbacks issued on internal ERP resources"
+    when: action.operation == "compensate" and action.target_domain == "internal.erp"
+}
