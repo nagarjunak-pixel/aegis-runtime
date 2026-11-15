@@ -1,0 +1,65 @@
+name: AegisRuntime CI & Formal Verification
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  control-plane-verification:
+    name: Lint, Strict Mypy, Hypothesis Properties & Red-Team
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        run: uv sync --all-extras
+
+      - name: Ruff lint & formatting check
+        run: |
+          uv run ruff check src tests
+          uv run ruff format --check src tests
+
+      - name: Strict static type checking (mypy --strict)
+        run: uv run mypy src
+
+      - name: Unit, E2E & Hypothesis property-based tests (95%+ coverage gate)
+        run: uv run pytest --cov=aegis --cov-fail-under=95 --cov-report=term-missing
+
+      - name: Execute 12-vector OWASP/SOX/OFAC adversarial red-team gate
+        run: uv run aegis redteam
+
+      - name: Execute 200-saga distributed chaos & conservation gate
+        run: uv run aegis benchmark --transactions 200 --fault-rate 0.25
+
+  control-tower-ui:
+    name: TypeScript & React Control Tower Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies & verify production TypeScript bundle
+        run: |
+          npm ci
+          npm run build
