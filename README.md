@@ -1,10 +1,11 @@
 # AegisRuntime
 
 [![CI & Formal Verification](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml)
+[![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/releases/tag/v1.0.0)
 ![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![TypeScript 5.6](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
 ![Coverage 97%](https://img.shields.io/badge/coverage-97%25-10b981)
-![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-10b981.svg)](LICENSE)
 
 **Deterministic Zero-Trust Control Plane, Formal AST Policy Gatekeeper, RFC-6962 Merkle Audit Ledger, and Distributed Transactional Saga Engine for Enterprise AI Agents.**
 
@@ -22,6 +23,12 @@ Most enterprise AI initiatives stall at the boundary between **read-only RAG cop
 4. **Tamper-Evident SHA-256, RFC-6962 Merkle & Ed25519 Ledger (`src/aegis/ledger/`)** — Append-only SQLite WAL event journal with monotonic hash chaining, **Ed25519 cryptographic signatures**, and $O(\log N)$ domain-separated (`0x00` leaf / `0x01` internal) Merkle inclusion proofs.
 5. **Pareto Multi-Model FinOps Router (`src/aegis/router/`)** — Eliminates dominated LLM endpoints across `(Cost, p95 Latency, Quality)`, backed by 3-state sliding-window circuit breakers, hierarchical tenant token-bucket admission control, and L2-normalized signed feature-hashing cosine semantic caching.
 6. **Time-Travel Replay & Counterfactual Policy Simulator (`src/aegis/replay/`)** — Reconstructs exact workflow state at any ledger sequence `seq <= N` and simulates candidate `.aegis` policy edits against historical production traffic to compute exact blast radius (`PERMIT <-> DENY` flips) prior to rollout.
+
+---
+
+## Live AegisRuntime Control Tower (ERP Sagas, Merkle Ledger & Red-Team Lab)
+
+![AegisRuntime Control Tower — Zero-Trust AST Policy Gatekeeper, Transactional SAP/ERP Sagas & RFC-6962 Merkle Audit Ledger](docs/assets/workbench-preview.png)
 
 ---
 

@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use or reference aegis-runtime in research or enterprise architecture, please cite it as below."
+type: software
+title: "AegisRuntime: Deterministic Zero-Trust Control Plane, Formal AST Policy Gatekeeper & Distributed Saga Engine for Enterprise AI Agents"
+version: 1.0.0
+date-released: "2026-11-16"
+license: Apache-2.0
+url: "https://nagarjunak-pixel.github.io/projects.html"
+repository-code: "https://github.com/nagarjunak-pixel/aegis-runtime"
+authors:
+  - family-names: "Kamireddy"
+    given-names: "Nagarjuna Reddy"
+    orcid: ""
+    affiliation: "Suryagentic AI"
