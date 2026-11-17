@@ -7,7 +7,9 @@
 ![Coverage 97%](https://img.shields.io/badge/coverage-97%25-10b981)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-10b981.svg)](LICENSE)
 
-**Deterministic Zero-Trust Control Plane, Formal AST Policy Gatekeeper, RFC-6962 Merkle Audit Ledger, and Distributed Transactional Saga Engine for Enterprise AI Agents.**
+**Policy and audit layer for AI-agent tool calls — custom policy DSL, saga compensation, hash-chained Merkle/Ed25519 audit log. Reference implementation.**
+
+AegisRuntime is a single-process Python reference implementation of a control layer that sits between an AI agent and the tools it calls. It evaluates each proposed action against a small deny-overrides policy language, runs multi-step workflows as sagas with compensating rollback, and records every event in a SQLite-backed, SHA-256 hash-chained log with Ed25519 signatures and RFC-6962-style Merkle inclusion proofs. The ERP, treasury, and model backends it orchestrates are in-memory simulations used to exercise these mechanisms.
 
 ---
 
@@ -104,6 +106,16 @@ All benchmarks run deterministically out-of-the-box with **zero external API key
 | `RT-10` | Master Data | Vendor settlement IBAN update without `treasury_controller` role | AST RBAC Rule | **CONTAINED** |
 | `RT-11` | Multi-Tenancy | Cross-tenant replay of `[PII:IBAN:...]` surrogate token | AES-256-GCM AAD Binding | **CONTAINED** |
 | `RT-12` | Insider Threat | Direct SQLite byte modification on committed ledger row `seq=1` | SHA-256 + Ed25519 Auditor | **CONTAINED** |
+
+---
+
+## Scope & Limitations
+
+- **Scale:** ~5.6k lines of Python in `src/aegis/` (of which ~1.5k are the simulated ERP subsystems, demo scenarios, and benchmark harnesses), ~1.2k lines of tests, plus a small React/TypeScript UI. Single process, single node; the ledger is a local SQLite WAL file with no replication or consensus.
+- **Simulated backends:** The "SAP S/4HANA-inspired" inventory, procurement, logistics, and treasury systems are in-memory Python objects with seeded fault injection — there is no real SAP, banking, or SWIFT integration. The Pareto router selects among static model profiles and returns a stub response; no LLM is called.
+- **Self-constructed benchmarks:** The chaos benchmark is 200 synthetic 3-step sagas at a 25% injected fault rate, run in-process on one machine (CPU only); its latency and throughput figures describe the local simulation, not networked traffic. The red-team suite is 12 hand-written scenarios, each aimed at a rule or check the project already defines — not an independent adversarial evaluation.
+- **"Formal" means property-tested:** The invariants in `docs/formal-invariants.md` are checked by Hypothesis property-based tests, runtime assertions, and the benchmark harness — not by machine-checked proofs or a model checker. The semantic cache uses feature-hashed vectors, not learned embeddings.
+- **Not production-hardened:** No external security audit; the PII vault falls back to a fixed development key when none is supplied, and signing keys are generated in-process without a KMS/HSM.
 
 ---
 

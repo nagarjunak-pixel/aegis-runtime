@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "aegis-runtime"
 version = "0.4.0"
-description = "Deterministic Zero-Trust Control Plane, AST Policy Gatekeeper, Cryptographic Merkle Audit Ledger, and Transactional Saga Engine for Enterprise AI Agents"
+description = "Policy and audit layer for AI-agent tool calls — custom policy DSL, saga compensation, hash-chained Merkle/Ed25519 audit log. Reference implementation"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
