@@ -1,6 +1,6 @@
 # AegisRuntime
 
-[![CI & Formal Verification](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml)
+[![AegisRuntime CI](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml)
 [![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/releases/tag/v1.0.0)
 ![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![TypeScript 5.6](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
@@ -17,7 +17,7 @@ AegisRuntime is a single-process Python reference implementation of a control la
 
 Most enterprise AI initiatives stall at the boundary between **read-only RAG copilots** and **write-capable autonomous operations** (issuing SAP purchase orders, reserving plant ATP inventory, locking FX forwards, or settling SWIFT/SEPA wires). Probabilistic LLMs cannot be trusted to enforce SOX Segregation of Duties, OFAC trade sanctions, PII residency, or multi-system transactional rollback when step 4 of a 4-step workflow fails mid-flight.
 
-**AegisRuntime** wraps non-deterministic model reasoning inside a **deterministic, formally verified distributed systems harness**:
+**AegisRuntime** wraps non-deterministic model reasoning inside a **deterministic, policy-checked and property-tested control harness**:
 
 1. **`.aegis` Policy-as-Code AST Compiler (`src/aegis/policy/`)** — Zero-`eval()` lexer, recursive-descent parser, and sub-50µs evaluator implementing **Deny-Overrides + Implicit Default-Deny** with full rule-by-rule proof traces.
 2. **Biba / Bell-LaPadula Information-Flow Taint & Reversible PII Vault (`src/aegis/policy/taint.py`, `src/aegis/privacy/`)** — Blocks indirect prompt-injection attacks (`UNTRUSTED_EXTERNAL` taint) from mutating high-integrity ERP/Treasury sinks, and replaces raw IBAN/SSN/TaxID/Email values with deterministic **HMAC-SHA256** surrogates backed by **tenant-AAD-bound AES-256-GCM** envelope encryption.
@@ -136,7 +136,7 @@ uv run aegis redteam
 # 4. Run 200 multi-step sagas under 25% chaos fault injection
 uv run aegis benchmark --transactions 200 --fault-rate 0.25
 
-# 5. Run full lint, mypy --strict, and 90-suite pytest + Hypothesis property checks
+# 5. Run full lint, mypy --strict, and 90 pytest tests + Hypothesis property checks
 make verify
 ```
 
@@ -197,9 +197,9 @@ Apache License 2.0 — Copyright © 2026 [Nagarjuna Kamireddy](https://github.co
 
 ---
 
-## Author & Enterprise AI Architecture Hub
+## Author & Links
 Built by **[Nagarjuna Reddy Kamireddy](https://nagarjunak-pixel.github.io/)** (*Nagarjuna Kamireddy / Nagarjuna K*) — Lead AI Architect, GenAI & Agentic AI Lead, and Corporate AI Trainer (20+ years across Enterprise Data, SAP HANA & Production AI; AWS Certified Solutions Architect – Professional & NVIDIA-Certified Professional: Agentic AI).
 
-- **Official Portfolio & Architecture Hub:** [https://nagarjunak-pixel.github.io/](https://nagarjunak-pixel.github.io/)
-- **Enterprise Case Studies & Technical Articles:** [Case Studies](https://nagarjunak-pixel.github.io/case-studies.html) · [Architecture Articles](https://nagarjunak-pixel.github.io/articles.html) · [10-Mandate Role Fit](https://nagarjunak-pixel.github.io/roles.html)
+- **Portfolio:** [https://nagarjunak-pixel.github.io/](https://nagarjunak-pixel.github.io/)
+- **Case Studies & Technical Articles:** [Case Studies](https://nagarjunak-pixel.github.io/case-studies.html) · [Architecture Articles](https://nagarjunak-pixel.github.io/articles.html) · [10-Mandate Role Fit](https://nagarjunak-pixel.github.io/roles.html)
 - **Master CV & AI Search Index:** [Master CV](https://nagarjunak-pixel.github.io/resume.html) · [`llms-full.txt`](https://nagarjunak-pixel.github.io/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/nagarjuna-kamireddy)

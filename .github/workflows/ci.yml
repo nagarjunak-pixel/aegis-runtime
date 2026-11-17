@@ -1,4 +1,4 @@
-name: AegisRuntime CI & Formal Verification
+name: AegisRuntime CI
 
 on:
   push:
