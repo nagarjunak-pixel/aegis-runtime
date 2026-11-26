@@ -174,6 +174,13 @@ rule "permit-treasury-settlement-operations" {
 }
 ```
 
+### Compaction-Safe User-Byte Attribution & Tool-Order Canonicalization (`v1.1.0`)
+
+Long-running coding and finance agents routinely invoke context compaction (`/compact`) when sessions cross token budgets. When model-generated summaries are re-inserted as user messages, untrusted document strings (such as a rogue account number in an invoice notice) can launder into request-derived capability policies (`arXiv:2611.32194`). `aegis.policy.CompactionAttributionLedger` and `/api/v1/compact/verify` separate planner context from policy authority:
+
+- **HMAC-SHA256 User-Span Sealing (`CompactionAttributionLedger`):** Authenticates raw human user turns prior to planner ingestion and carries sealed user byte spans verbatim across compaction epochs while presenting compactor summaries strictly as untrusted system context.
+- **Permutation-Invariant Tool Manifests (`canonicalize_tool_schemas`, `arXiv:2611.30259`):** Normalizes MCP tool definitions and `required` parameter sets into a deterministic lexicographical `SHA-256` manifest independent of tool registration order or `PYTHONHASHSEED`.
+
 ---
 
 ## Architecture Documentation & Decision Records (ADRs)

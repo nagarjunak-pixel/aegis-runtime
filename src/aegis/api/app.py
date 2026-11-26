@@ -15,6 +15,10 @@ from aegis.benchmarks.chaos_suite import run_chaos_benchmark
 from aegis.benchmarks.redteam_suite import run_redteam_suite
 from aegis.enterprise.scenarios import EnterpriseScenarioCatalog
 from aegis.ledger.crypto import verify_merkle_proof
+from aegis.policy.compaction_guard import (
+    CompactionAttributionLedger,
+    canonicalize_tool_schemas,
+)
 from aegis.policy.evaluator import PolicyEngine
 from aegis.policy.parser import PolicySyntaxError
 from aegis.runtime import AegisRuntime
@@ -36,6 +40,14 @@ class CounterfactualRequest(BaseModel):
 class ChaosRequest(BaseModel):
     transactions: int = Field(default=120, ge=10, le=1000)
     fault_rate: float = Field(default=0.25, ge=0.0, le=0.9)
+
+
+class CompactionVerifyRequest(BaseModel):
+    principal_id: str
+    user_turns: list[str]
+    compactor_summary: str
+    sensitive_target: str
+    tools: list[dict[str, Any]] = Field(default_factory=list)
 
 
 def create_app(runtime: AegisRuntime | None = None) -> FastAPI:
@@ -192,6 +204,24 @@ def create_app(runtime: AegisRuntime | None = None) -> FastAPI:
     @app.post("/api/v1/mcp/rpc")
     async def mcp_jsonrpc_endpoint(payload: dict[str, Any]) -> dict[str, Any]:
         return await rt.mcp_server.handle_jsonrpc(payload)
+
+    @app.post("/api/v1/compact/verify")
+    async def verify_compaction_boundary(req: CompactionVerifyRequest) -> dict[str, Any]:
+        ledger = CompactionAttributionLedger(b"aegis-runtime-compaction-hmac-v1")
+        for turn in req.user_turns:
+            ledger.seal_user_turn(req.principal_id, turn)
+        bundle = ledger.compact_context(req.compactor_summary)
+        verdict = ledger.verify_request_derived_target(
+            req.principal_id, req.sensitive_target, bundle
+        )
+        _, tool_manifest_sha256 = canonicalize_tool_schemas(req.tools)
+        return {
+            "allowed": verdict.allowed,
+            "matched_turn_id": verdict.matched_turn_id,
+            "reason": verdict.reason,
+            "compaction_epoch": bundle.compaction_epoch,
+            "tool_manifest_sha256": tool_manifest_sha256,
+        }
 
     @app.get("/metrics", response_class=PlainTextResponse)
     async def prometheus_metrics() -> str:
