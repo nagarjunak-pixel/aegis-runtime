@@ -1,7 +1,7 @@
 # AegisRuntime
 
 [![AegisRuntime CI](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/actions/workflows/ci.yml)
-[![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/releases/tag/v1.0.0)
+[![Release v1.2.0](https://img.shields.io/badge/release-v1.2.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/aegis-runtime/releases/tag/v1.2.0)
 ![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![TypeScript 5.6](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
 ![Coverage 97%](https://img.shields.io/badge/coverage-97%25-10b981)
@@ -181,6 +181,11 @@ Long-running coding and finance agents routinely invoke context compaction (`/co
 - **HMAC-SHA256 User-Span Sealing (`CompactionAttributionLedger`):** Authenticates raw human user turns prior to planner ingestion and carries sealed user byte spans verbatim across compaction epochs while presenting compactor summaries strictly as untrusted system context.
 - **Permutation-Invariant Tool Manifests (`canonicalize_tool_schemas`, `arXiv:2611.30259`):** Normalizes MCP tool definitions and `required` parameter sets into a deterministic lexicographical `SHA-256` manifest independent of tool registration order or `PYTHONHASHSEED`.
 
+## v1.2.0 — Out-of-Sandbox Credential Broker & Multi-Actor Capability Isolation (`src/aegis/policy/credential_broker.py`)
+
+- **Out-of-Sandbox Secret Broker (`OpaqueSecretBroker`, `POST /api/v1/egress/broker`):** Sandboxed agents receive only HMAC-authenticated opaque handles (`sec_ref://<alias>:<tag>`) in environment variables (`agent_environment_view()`). An external egress supervisor enforces default-deny HTTPS routing, blocks raw, Base64, URL-encoded, and hex-encoded secret exfiltration across headers and bodies, swaps credentials exclusively on allowlisted `(actor_id, host, method, path_prefix)` routes, and emits auditable `PolicyDiffProposal` digests on denied routes without container restarts.
+- **Multi-Actor Session Capability Isolation (`MultiActorCapabilitySession`, `arXiv:2611.34920`):** Prevents cross-speaker authority bleed in shared multi-participant sessions by binding tool authorization to each invoking speaker's registered capability set (or explicit scoped single-tool delegations bounded by the delegator's own scope).
+
 ---
 
 ## Architecture Documentation & Decision Records (ADRs)
@@ -209,4 +214,4 @@ Built by **[Nagarjuna Reddy Kamireddy](https://nagarjunak-pixel.github.io/)** (*
 
 - **Portfolio:** [https://nagarjunak-pixel.github.io/](https://nagarjunak-pixel.github.io/)
 - **Case Studies & Technical Articles:** [Case Studies](https://nagarjunak-pixel.github.io/case-studies.html) · [Architecture Articles](https://nagarjunak-pixel.github.io/articles.html) · [10-Mandate Role Fit](https://nagarjunak-pixel.github.io/roles.html)
-- **Master CV & AI Search Index:** [Master CV](https://nagarjunak-pixel.github.io/resume.html) · [`llms-full.txt`](https://nagarjunak-pixel.github.io/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/nagarjuna-kamireddy)
+- **Curriculum Vitae & LinkedIn:** [Resume](https://nagarjunak-pixel.github.io/resume.html) · [LinkedIn](https://www.linkedin.com/in/nagarjuna-kamireddy)

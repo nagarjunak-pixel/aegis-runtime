@@ -19,6 +19,7 @@ from aegis.policy.compaction_guard import (
     CompactionAttributionLedger,
     canonicalize_tool_schemas,
 )
+from aegis.policy.credential_broker import EgressAllowRule, OpaqueSecretBroker
 from aegis.policy.evaluator import PolicyEngine
 from aegis.policy.parser import PolicySyntaxError
 from aegis.runtime import AegisRuntime
@@ -48,6 +49,16 @@ class CompactionVerifyRequest(BaseModel):
     compactor_summary: str
     sensitive_target: str
     tools: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class EgressBrokerRequest(BaseModel):
+    actor_id: str
+    method: str = "POST"
+    url: str
+    headers: dict[str, str] = Field(default_factory=dict)
+    body: str = ""
+    allowed_host: str = "api.erp.example.com"
+    allowed_path_prefix: str = "/v1"
 
 
 def create_app(runtime: AegisRuntime | None = None) -> FastAPI:
@@ -221,6 +232,41 @@ def create_app(runtime: AegisRuntime | None = None) -> FastAPI:
             "reason": verdict.reason,
             "compaction_epoch": bundle.compaction_epoch,
             "tool_manifest_sha256": tool_manifest_sha256,
+        }
+
+    @app.post("/api/v1/egress/broker")
+    async def inspect_egress_broker(req: EgressBrokerRequest) -> dict[str, Any]:
+        broker = OpaqueSecretBroker(b"aegis-runtime-egress-broker-key-v1")
+        handle = broker.register_secret(
+            "erp_token",
+            "sk-live-erp-9876543210abcdef",
+            allowed_egress=(
+                EgressAllowRule(
+                    actor_id=req.actor_id,
+                    host=req.allowed_host,
+                    method=req.method,
+                    path_prefix=req.allowed_path_prefix,
+                ),
+            ),
+        )
+        headers = {k: v.replace("{{ERP_TOKEN}}", handle) for k, v in req.headers.items()}
+        body = req.body.replace("{{ERP_TOKEN}}", handle)
+        res = broker.inspect_and_swap_egress(
+            actor_id=req.actor_id,
+            method=req.method,
+            url=req.url,
+            headers=headers,
+            body=body,
+        )
+        return {
+            "allowed": res.allowed,
+            "reason": res.reason,
+            "exfiltration_detected": res.exfiltration_detected,
+            "swapped_aliases": list(res.swapped_aliases),
+            "sandbox_env": broker.agent_environment_view(),
+            "proposal_sha256": (
+                res.policy_diff_proposal.proposal_sha256 if res.policy_diff_proposal else None
+            ),
         }
 
     @app.get("/metrics", response_class=PlainTextResponse)
